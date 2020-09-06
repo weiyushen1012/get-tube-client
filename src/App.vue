@@ -1,9 +1,10 @@
 <template>
   <div id="app" class="container">
     <main>
-      <URLInput />
+      <URLInput @videoProcessing="handleVideoProcessing" @videoProcessed="handleVideoProcessed" />
     </main>
-    <VideoPreview v-bind:show-preview="showPreview" />
+    <VideoPreview v-bind:show-preview="showPreview" v-bind:videoId="videoId" />
+    <b-loading :is-full-page="true" :can-cancel="false" :active="loading"></b-loading>
   </div>
 </template>
 
@@ -15,12 +16,22 @@ export default {
   name: 'App',
   data: function () {
     return {
-      showPreview: false
+      showPreview: false,
+      videoId: '',
+      loading: false
     };
   },
   components: {
     URLInput,
     VideoPreview,
+  },
+  methods: {
+    handleVideoProcessed: function () {
+      this.loading = false;
+    },
+    handleVideoProcessing: function () {
+      this.loading = true;
+    }
   }
 };
 </script>
