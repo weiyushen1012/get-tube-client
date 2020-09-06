@@ -1,9 +1,16 @@
 <template>
   <div id="app" class="container">
     <main>
-      <URLInput @videoProcessing="handleVideoProcessing" @videoProcessed="handleVideoProcessed" />
+      <URLInput @videoProcessing="handleVideoProcessing" @videoProcessed="handleVideoProcessed"
+                @urlInput="handleUrlInput" />
     </main>
-    <VideoPreview v-bind:show-preview="showPreview" v-bind:videoId="videoId" />
+
+    <br>
+
+    <main v-if="showPreview">
+      <VideoPreview v-bind:videoId="videoId" />
+    </main>
+
     <b-loading :is-full-page="true" :can-cancel="false" :active="loading"></b-loading>
   </div>
 </template>
@@ -31,12 +38,25 @@ export default {
     },
     handleVideoProcessing: function () {
       this.loading = true;
+    },
+    handleUrlInput: function (value) {
+      if (!value.includes('?v=') || value.split('?v=').length < 2 || !value.split('?v=')[1]) {
+        this.showPreview = false;
+        return;
+      }
+
+      this.showPreview = value.length > 0;
+      this.videoId = value.split('?v=')[1];
     }
   }
 };
 </script>
 
 <style>
+:root {
+  overflow: hidden;
+}
+
 body {
   height: 100vh;
 }

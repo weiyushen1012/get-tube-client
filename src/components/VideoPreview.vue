@@ -1,11 +1,11 @@
 <template>
-  <youtube v-bind:video-id="videoId" v-if="showPreview"/>
+  <youtube v-bind:video-id="videoId" />
 </template>
 
 <script>
 export default {
   name: "VideoPreview",
-  props: ['showPreview', 'videoId']
+  props: ['videoId']
 }
 </script>
 

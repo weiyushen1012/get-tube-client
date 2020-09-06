@@ -4,6 +4,7 @@
              type="search"
              icon="magnify"
              v-model="url"
+             @input="handleInput"
     >
     </b-input>
     <b-button type="is-primary" class="btn" @click="handleSearch">Search</b-button>
@@ -42,6 +43,9 @@ export default {
 
       this.$emit('videoProcessed');
     },
+    handleInput: function (value) {
+      this.$emit('urlInput', value);
+    }
   }
 };
 </script>
@@ -54,11 +58,11 @@ section {
 }
 
 .btn {
-  margin-top: 1em;
+  margin-top: 0.8em;
   width: 120px;
 }
 
 .download-btn {
-  margin-left: 1em;
+  margin-left: 0.8em;
 }
 </style>
