@@ -5,10 +5,14 @@
              icon="magnify"
              v-model="url"
              @input="handleInput"
-    >
-    </b-input>
-    <b-button type="is-primary" class="btn" @click="handleSearch">Get Download Link</b-button>
-    <a class="button is-success btn download-btn" v-if="showDownloadBtn" v-bind:href="fileLocation">Download as .mp4</a>
+    />
+    <b-tooltip label="Copy URL from clipboard" position="is-bottom" v-if="isShowingFromClipboard">
+      <b-button class="sm-btn" icon-left="clipboard-file" @click="handleUrlFromClipboard"></b-button>
+    </b-tooltip>
+    <b-button type="is-primary" class="btn" @click="handleSearch" v-bind:disabled="url.length === 0">
+      Get Download Link
+    </b-button>
+    <a class="button is-success btn" v-if="showDownloadBtn" v-bind:href="fileLocation">Download as .mp4</a>
   </section>
 </template>
 
@@ -21,7 +25,8 @@ export default {
     return {
       url: '',
       fileLocation: '',
-      showDownloadBtn: false
+      showDownloadBtn: false,
+      isShowingFromClipboard: false
     };
   },
   methods: {
@@ -45,6 +50,30 @@ export default {
     },
     handleInput: function (value) {
       this.$emit('urlInput', value);
+    },
+    handleUrlFromClipboard: async function () {
+      try {
+        const result = await navigator.permissions.query({name: 'clipboard-read'});
+
+        if (result.state === 'granted' || result.state === 'prompt') {
+          this.url = await navigator.clipboard.readText();
+          this.$emit('urlInput', this.url);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  },
+  created: async function () {
+    try {
+      const result = await navigator.permissions.query({name: 'clipboard-read'});
+
+      if (result.state === 'granted' || result.state === 'prompt') {
+        this.isShowingFromClipboard = true;
+      }
+    } catch (e) {
+      console.error(e);
+      this.isShowingFromClipboard = false;
     }
   }
 };
@@ -52,17 +81,19 @@ export default {
 
 <style scoped>
 section {
-  margin-top: 5vh;
   max-width: 500px;
   flex-grow: 1;
 }
 
 .btn {
   margin-top: 0.8em;
+  margin-right: 0.8em;
   width: 180px;
 }
 
-.download-btn {
-  margin-left: 0.8em;
+.sm-btn {
+  margin-top: 0.8em;
+  margin-right: 0.8em;
 }
+
 </style>

@@ -1,12 +1,11 @@
 <template>
   <div id="app" class="container">
+    <br>
     <main>
       <URLInput @videoProcessing="handleVideoProcessing" @videoProcessed="handleVideoProcessed"
                 @urlInput="handleUrlInput" />
     </main>
-
     <br>
-
     <main v-if="showPreview">
       <VideoPreview v-bind:videoId="videoId" />
     </main>
