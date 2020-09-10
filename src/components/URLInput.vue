@@ -12,7 +12,9 @@
     <b-button type="is-primary" class="btn" @click="handleSearch" v-bind:disabled="url.length === 0">
       Get Download Link
     </b-button>
-    <a class="button is-success btn" v-if="showDownloadBtn" v-bind:href="fileLocation">Download as .mp4</a>
+    <b-button type="is-success" class="btn" @click="handleDownloadLink" v-if="showDownloadBtn">
+      Download as .mp4
+    </b-button>
   </section>
 </template>
 
@@ -24,7 +26,7 @@ export default {
   data: function () {
     return {
       url: '',
-      fileLocation: '',
+      filename: '',
       showDownloadBtn: false,
       isShowingFromClipboard: false
     };
@@ -33,20 +35,26 @@ export default {
     handleSearch: async function () {
       this.$emit('videoProcessing');
 
-      const response = await fetch(`${endpoint}/download_from_tube`, {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({url: this.url})
-      });
+      try {
+        const response = await fetch(`${endpoint}/download_from_tube`, {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({url: this.url})
+        });
 
-      const data = await response.json();
-      this.fileLocation = `${endpoint}/send_video_file/${data.filename}`;
-      this.showDownloadBtn = true;
+        const data = await response.json();
+        this.filename = data.filename;
+        this.showDownloadBtn = true;
 
-      this.$emit('videoProcessed');
+        this.$emit('videoProcessed');
+      } catch (e) {
+        console.error(e);
+        this.$emit('videoProcessed');
+      }
+
     },
     handleInput: function (value) {
       this.$emit('urlInput', value);
@@ -62,6 +70,33 @@ export default {
       } catch (e) {
         console.error(e);
       }
+    },
+    handleDownloadLink: async function () {
+      try {
+        const response = await fetch(`${endpoint}/is_temp_file_exists/${this.filename}`);
+        if (response.status === 200) {
+          window.location.href = `${endpoint}/send_video_file/${this.filename}`;
+        } else {
+          console.error('Error: Download link is no longer valid.');
+          this.showErrorDialog();
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    },
+    showErrorDialog() {
+      this.$buefy.dialog.alert({
+        title: 'Error',
+        message: 'Download link is no longer valid.',
+        type: 'is-danger',
+        hasIcon: true,
+        ariaRole: 'alertdialog',
+        ariaModal: true,
+        onConfirm: () => {
+          window.location.reload();
+        }
+      });
+
     }
   },
   created: async function () {
