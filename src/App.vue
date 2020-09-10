@@ -40,13 +40,15 @@ export default {
       this.loading = true;
     },
     handleUrlInput: function (value) {
-      if (!value.includes('?v=') || value.split('?v=').length < 2 || !value.split('?v=')[1]) {
+      const delimiter = 'watch?v=';
+
+      if (!value.includes(delimiter) || value.split(delimiter).length < 2 || !value.split(delimiter)[1]) {
         this.showPreview = false;
         return;
       }
 
       this.showPreview = value.length > 0;
-      this.videoId = value.split('?v=')[1];
+      this.videoId = value.split(delimiter)[1];
     }
   }
 };

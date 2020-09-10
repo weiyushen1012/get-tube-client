@@ -7,8 +7,8 @@
              @input="handleInput"
     >
     </b-input>
-    <b-button type="is-primary" class="btn" @click="handleSearch">Search</b-button>
-    <a class="button is-success btn download-btn" v-if="showDownloadBtn" v-bind:href="fileLocation">Download</a>
+    <b-button type="is-primary" class="btn" @click="handleSearch">Get Download Link</b-button>
+    <a class="button is-success btn download-btn" v-if="showDownloadBtn" v-bind:href="fileLocation">Download as .mp4</a>
   </section>
 </template>
 
@@ -59,7 +59,7 @@ section {
 
 .btn {
   margin-top: 0.8em;
-  width: 120px;
+  width: 180px;
 }
 
 .download-btn {
