@@ -7,27 +7,24 @@
              @input="handleInput"
     />
     <b-tooltip label="Copy URL from clipboard" position="is-bottom" v-if="isShowingFromClipboard">
-      <b-button class="sm-btn" icon-left="clipboard-file" @click="handleUrlFromClipboard"></b-button>
+      <b-button class="sm-btn" icon-left="clipboard-file" @click="handleUrlFromClipboard" />
     </b-tooltip>
     <b-button type="is-primary" class="btn" @click="handleSearch" v-bind:disabled="url.length === 0">
       Get Download Link
-    </b-button>
-    <b-button type="is-success" class="btn" @click="handleDownloadLink" v-if="showDownloadBtn">
-      Download as .mp4
     </b-button>
   </section>
 </template>
 
 <script>
-const endpoint = 'http://localhost:5000';
+import config from '../assets/config.json';
+
+const endpoint = config.endpoints.development;
 
 export default {
   name: 'URLInput',
   data: function () {
     return {
       url: '',
-      filename: '',
-      showDownloadBtn: false,
       isShowingFromClipboard: false
     };
   },
@@ -42,17 +39,16 @@ export default {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({url: this.url})
+          body: JSON.stringify({ url: this.url })
         });
 
         const data = await response.json();
-        this.filename = data.filename;
         this.showDownloadBtn = true;
 
-        this.$emit('videoProcessed');
+        this.$emit('videoProcessed', data.filename);
       } catch (e) {
         console.error(e);
-        this.$emit('videoProcessed');
+        this.$emit('videoProcessed', null);
       }
 
     },
@@ -61,7 +57,7 @@ export default {
     },
     handleUrlFromClipboard: async function () {
       try {
-        const result = await navigator.permissions.query({name: 'clipboard-read'});
+        const result = await navigator.permissions.query({ name: 'clipboard-read' });
 
         if (result.state === 'granted' || result.state === 'prompt') {
           this.url = await navigator.clipboard.readText();
@@ -71,37 +67,10 @@ export default {
         console.error(e);
       }
     },
-    handleDownloadLink: async function () {
-      try {
-        const response = await fetch(`${endpoint}/is_temp_file_exists/${this.filename}`);
-        if (response.status === 200) {
-          window.location.href = `${endpoint}/send_video_file/${this.filename}`;
-        } else {
-          console.error('Error: Download link is no longer valid.');
-          this.showErrorDialog();
-        }
-      } catch (e) {
-        console.error(e);
-      }
-    },
-    showErrorDialog() {
-      this.$buefy.dialog.alert({
-        title: 'Error',
-        message: 'Download link is no longer valid.',
-        type: 'is-danger',
-        hasIcon: true,
-        ariaRole: 'alertdialog',
-        ariaModal: true,
-        onConfirm: () => {
-          window.location.reload();
-        }
-      });
-
-    }
   },
   created: async function () {
     try {
-      const result = await navigator.permissions.query({name: 'clipboard-read'});
+      const result = await navigator.permissions.query({ name: 'clipboard-read' });
 
       if (result.state === 'granted' || result.state === 'prompt') {
         this.isShowingFromClipboard = true;
@@ -123,7 +92,7 @@ section {
 .btn {
   margin-top: 0.8em;
   margin-right: 0.8em;
-  width: 180px;
+  width: 350px;
 }
 
 .sm-btn {

@@ -1,11 +1,9 @@
 <template>
   <div id="app" class="container">
     <br>
-    <main>
-      <URLInput @videoProcessing="handleVideoProcessing" @videoProcessed="handleVideoProcessed"
-                @urlInput="handleUrlInput" />
-    </main>
-    <br>
+    <StepsContainer @videoProcessing="handleVideoProcessing" @videoProcessed="handleVideoProcessed"
+                    @urlInput="handleUrlInput" v-bind:filename="filename" />
+
     <main v-if="showPreview">
       <VideoPreview v-bind:videoId="videoId" />
     </main>
@@ -15,7 +13,7 @@
 </template>
 
 <script>
-import URLInput from '@/components/URLInput';
+import StepsContainer from '@/components/StepsContainer';
 import VideoPreview from '@/components/VideoPreview';
 
 export default {
@@ -24,16 +22,19 @@ export default {
     return {
       showPreview: false,
       videoId: '',
-      loading: false
+      loading: false,
+      steps: 1,
+      filename: '',
     };
   },
   components: {
-    URLInput,
     VideoPreview,
+    StepsContainer
   },
   methods: {
-    handleVideoProcessed: function () {
+    handleVideoProcessed: function (filename) {
       this.loading = false;
+      this.filename = filename;
     },
     handleVideoProcessing: function () {
       this.loading = true;
@@ -70,5 +71,6 @@ body {
 main {
   display: flex;
   justify-content: center;
+
 }
 </style>
