@@ -16,9 +16,9 @@
 </template>
 
 <script>
-import config from '../assets/config.json';
+import { getEndpoint } from '@/services/util';
 
-const endpoint = config.endpoints.development;
+const endpoint = getEndpoint();
 
 export default {
   name: 'URLInput',
