@@ -1,5 +1,5 @@
 <template>
-  <b-steps class="step-container" v-model="activeStep" :has-navigation="false" size="is-small">
+  <b-steps class="step-container" v-model="activeStep" :has-navigation="false" size="is-small" :destroy-on-hide="true">
     <b-step-item
         step="1"
         class="step-content"
@@ -25,7 +25,7 @@
         label="Done!"
         :clickable="false"
     >
-      200
+      <Successful />
     </b-step-item>
   </b-steps>
 </template>
@@ -33,13 +33,15 @@
 <script>
 import URLInput from '@/components/URLInput';
 import DownloadFile from '@/components/DownloadFile';
+import Successful from '@/components/Successful';
 
 export default {
   name: 'StepsContainer',
   props: ['filename'],
   components: {
     URLInput,
-    DownloadFile
+    DownloadFile,
+    Successful
   },
   methods: {
     handleUrlInput(value) {

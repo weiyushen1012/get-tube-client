@@ -56,7 +56,7 @@ export default {
 
 <style>
 :root {
-  overflow: hidden;
+  overflow: auto;
 }
 
 body {

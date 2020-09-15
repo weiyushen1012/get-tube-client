@@ -1,6 +1,19 @@
 <template>
   <section>
-    <b-button type="is-success" class="btn" @click="handleDownloadLink">
+    <b-notification type="is-info is-light" aria-close-label="Close notification" :closable="false" v-if="!isExpired">
+      <p>Generated download link for this Video</p>
+      <p>This link will expire in {{ expiration }} seconds</p>
+      <br>
+      <b-progress :type="isAlmostExpired ? 'is-danger' : 'is-info'" :value="expiration / 300 * 100"
+                  size="is-small"></b-progress>
+    </b-notification>
+
+    <b-notification type="is-danger is-light" :closable="false" v-if="isExpired">
+      <p>Download link is expired!</p>
+      <br>
+      <b-button @click="handleTryAgain">Try Again</b-button>
+    </b-notification>
+    <b-button type="is-success" class="btn" @click="handleDownloadLink" v-if="!isExpired">
       Download as .mp4
     </b-button>
   </section>
@@ -11,11 +24,34 @@ import { getEndpoint } from '@/services/util';
 
 const endpoint = getEndpoint();
 
+let timer;
+
 export default {
   name: 'DownloadFile',
+  data() {
+    return {
+      expiration: 300,
+      isExpired: false,
+      isAlmostExpired: false,
+    };
+  },
   props: ['filename'],
+  created() {
+    timer = setInterval(() => {
+      if (this.expiration <= 0) {
+        clearInterval(timer);
+        this.expiration = 0;
+        this.isExpired = true;
+      } else {
+        if (this.expiration <= 100) {
+          this.isAlmostExpired = true;
+        }
+        this.expiration -= 1;
+      }
+    }, 1000);
+  },
   methods: {
-    handleDownloadLink: async function () {
+    async handleDownloadLink() {
       try {
         const response = await fetch(`${endpoint}/is_temp_file_exists/${this.filename}`);
         if (response.status === 200) {
@@ -23,24 +59,14 @@ export default {
           window.location.href = `${endpoint}/send_video_file/${this.filename}`;
         } else {
           console.error('Error: Download link is no longer valid.');
-          this.showErrorDialog();
+          this.isExpired = true;
         }
       } catch (e) {
         console.error(e);
       }
     },
-    showErrorDialog() {
-      this.$buefy.dialog.alert({
-        title: 'Error',
-        message: 'Download link is no longer valid.',
-        type: 'is-danger',
-        hasIcon: true,
-        ariaRole: 'alertdialog',
-        ariaModal: true,
-        onConfirm: () => {
-          window.location.reload();
-        }
-      });
+    handleTryAgain() {
+      window.location.reload();
     }
   }
 };
@@ -53,8 +79,6 @@ section {
 }
 
 .btn {
-  margin-top: 0.8em;
-  margin-right: 0.8em;
   width: 350px;
 }
 
